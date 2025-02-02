@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=42"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "project_zero"
+version = "0.1.0"
+description = "A template projecr for Python applications."
+authors = [{ name = "Abiodun Adebisi", emails = "abiodunadebisi@gmail.com"}]
+dependencies = []
+
+[tool.taskipy.tasks]
+docs = "sphinx-build -b html docs/source docs/build/html"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
