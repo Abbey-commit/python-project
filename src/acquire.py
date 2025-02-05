@@ -1,54 +1,38 @@
 import argparse
-import logging
 import csv
 import json
-from model import XYPair
 from pathlib import Path
 from extract import Series1Pair, Series2Pair, Series3Pair, Series4Pair
 
-def get_options():
-    parser = argparse.ArgumentParser(description="Data Acquisition CLI")
-    parser.add_argument("source_file", type=str, help="Path to the source CSV file")
-    parser.add_argument("-o", "--output", type=str, required=True, help="Output directory")
-    return parser.parse_args()
-
-def main():
-    logging.basicConfig(level=logging.INFO)
-    options = get_options()
-    output_dir = Path(options.output)
-
-    if not output_dir.exists():
-        logging.error(f"Output directory {output_dir} does not exist.")
-        return
-    
-    with open(options.source_file, 'r') as csvfile:
+def read_csv(file_path):
+    with open(file_path, newline='') as csvfile:
         reader = csv.reader(csvfile)
-        next(reader) # Skip header row
-        series1_pairs = []
-        series2_pairs = []
-        series3_pairs = []
-        series4_pairs = []
+        data = list(reader)
+    return data
+
+def write_json(data, output_path):
+    with open(output_path, 'w') as jsonfile:
+        json.dump(data, jsonfile, indent=4)
+
+def main(input_file, output_dir):
+    output_dir_path = Path(output_dir)
+    if not output_dir_path.exists():
+        print(f"Creating output directory: {output_dir}")
+        output_dir_path.mkdir(parents=True, exist_ok=True)
     
-    for row in reader:
-        series1_pairs.append(Series1Pair().from_row(row))
-        series2_pairs.append(Series2Pair().from_row(row))
-        series3_pairs.append(Series3Pair().from_row(row))
-        series4_pairs.append(Series4Pair().from_row(row))
-
-    output_files = [
-        ("series_1.json", series1_pairs),
-        ("series_2.json", series2_pairs),
-        ("series_3.json", series2_pairs),
-        ("series_4.json", series4_pairs)
+    data = read_csv(input_file)
+    pairs = [
+        Series1Pair().from_row(data[1]),
+        Series2Pair().from_row(data[1]),
+        Series3Pair().from_row(data[1]),
+        Series4Pair().from_row(data[1])
     ]
-
-    for filename, data in output_files:
-        with open(output_dir / filename, 'w') as outfile:
-            for item in data:
-                json.dump(item.asdict(), outfile)
-                outfile.write('\n')
-
-    logging.info("Processing completed successfully.")
+    output_path = output_dir_path / "output.json"
+    write_json([pair.__dict__ for pair in pairs], output_path)
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Acquire and transform data from a CSV file.")
+    parser.add_argument("input_file", help="Path to the input CSV file.")
+    parser.add_argument("output_dir", help="Directory where the output JSON file will be saved.")
+    args = parser.parse_args()
+    main(args.input_file, args.output_dir)
