@@ -3,11 +3,15 @@ requires = ["setuptools>=42"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "project_zero"
-version = "0.1.0"
-description = "A template projecr for Python applications."
-authors = [{ name = "Abiodun Adebisi", emails = "abiodunadebisi@gmail.com"}]
-dependencies = []
+name = "project_one"
+version = "0.1.1"
+description = "CLI applicationsto extract data from CSV file and restructure it back."
+authors = [{ name = "Abiodun Adebisi" }]
+dependencies = [
+    'pytest',
+    'behave',
+    'tomli'
+]
 
 [tool.taskipy.tasks]
 docs = "sphinx-build -b html docs/source docs/build/html"
